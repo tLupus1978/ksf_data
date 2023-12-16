@@ -1,1 +1,1 @@
-DOMAIN = "portainer"
+DOMAIN = "ksf_data"
