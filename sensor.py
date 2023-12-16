@@ -211,7 +211,7 @@ class ksfData:
             for inner_list in data:
                 if inner_list[0][1] == "Datenschutz | Impressum":
                     break
-                merged_data += dates[i] + "\n"
+                merged_data += dates[i] + "\n\n"
                 for sublist in inner_list:
                     merged_data += (
                         " ".join(sublist) + "\n"
