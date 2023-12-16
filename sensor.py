@@ -11,12 +11,13 @@ from html.parser import HTMLParser
 import logging
 from typing import List  # noqa: UP035
 
-import pyquery
 from pyquery import PyQuery as pq
 import requests
 
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import Throttle
+
+from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -38,7 +39,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     #    return False
 
     try:
-        _LOGGER.debug(f"Loading KSF data from {url}")
+        # _LOGGER.debug(f"Loading KSF data from {url}")
         ksf = ksfData(username, password)
         ksf.update()
     except Exception as e:
@@ -93,18 +94,18 @@ class ksfSensor(Entity):
     @property
     def extra_state_attributes(self):
         return {
-            "Name": self._ksf._name,
+            "Name": self._name,
             "FriendlyName": self._username,
             # "Version": self._portainer.version,
-            "NumberOfSubstitutes": len(self._ksf.substitutes),
+            "SubstitutePlan": self._ksf.substituteplan,
         }
 
     def update(self):
         self._ksf.update()
-        _LOGGER.debug(f"Updating KSF data: {self._ksf.unique_id} from {self._url}")
-        now = datetime.datetime.now().strftime("%H:%M")
+        _LOGGER.debug(f"Updating KSF data for {self._ksf.username}")
+        now = datetime.now().strftime("%H:%M")
         _LOGGER.info("It is {}".format(now))
-        self._state = self._ksf.now
+        self._state = now
 
 
 class ksfData:
@@ -112,19 +113,30 @@ class ksfData:
         self._username = username
         self._password = password
         self._substituteplan = None
-        self.substitutes = []
+
+    @property
+    def substituteplan(self):
+        return self._substituteplan
+
+    @property
+    def username(self):
+        return self._username
+
+    @property
+    def state(self):
+        return self._state
 
     @Throttle(MIN_TIME_BETWEEN_UPDATES)
     def update(self):
+        ex = None
         if not self._substituteplan:
-            self._substituteplan = self._get_substituteplan()
+            self._substituteplan, ex = self._get_substituteplan()
 
-        # if self._substituteplan:
-        #    if not self.endpoint_id:
-        #        self.endpoint_id = self._get_first_endpoint_id()
-        #    self.containers = self._get_containers(self.endpoint_id)
-        # else:
-        #    _LOGGER.error("Failed to authenticate with Portainer.")
+        if self._substituteplan:
+            self._state = True
+        else:
+            self._state = False
+            _LOGGER.error("Failed to request substituteplan!")
 
     def _get_substituteplan(self):
         """Vertretungsplan getter using pyscript."""
@@ -199,10 +211,10 @@ class ksfData:
             for inner_list in data:
                 if inner_list[0][1] == "Datenschutz | Impressum":
                     break
-                merged_data += dates[i] + "</br>\n"
+                merged_data += dates[i] + "\n"
                 for sublist in inner_list:
                     merged_data += (
-                        " ".join(sublist) + "</br>\n"
+                        " ".join(sublist) + "\n"
                     )  # Füge die Elemente der Unterlisten durch Tabs getrennt zusammen
                 i += 1
 
