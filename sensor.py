@@ -1,9 +1,9 @@
-"""Portainer Status Support.
+"""KSF Data fetcher (Substitute plan of Kopernikusschule Freigericht).
 
-Original Author:  Jim Thompson
+Original Author:  Thomas Wolf
 
 Description:
-  Configuration Instructions are on GitHub.
+    Configuration Instructions are on GitHub.
 """
 
 from datetime import datetime, timedelta
@@ -11,6 +11,7 @@ from html.parser import HTMLParser
 import logging
 from typing import List  # noqa: UP035
 
+from attrs import define, field
 from pyquery import PyQuery as pq
 import requests
 
@@ -97,7 +98,7 @@ class ksfSensor(Entity):
             "Name": self._name,
             "FriendlyName": self._username,
             # "Version": self._portainer.version,
-            "SubstitutePlan": self._ksf.substituteplan,
+            "SubstitutePlan": str(self._ksf.substituteplan),
         }
 
     def update(self):
@@ -194,8 +195,9 @@ class ksfData:
                 )
                 return retVal, None
 
+            pageData = resp.text
             # start processing and parsing of the page...
-            d = pq(resp.text)
+            d = pq(pageData)
 
             dates = []
             VertretungenDates = d(".panel-body")
@@ -203,22 +205,50 @@ class ksfData:
                 dates.append(my_div("h3").text())
 
             p = HTMLTableParser()
-            p.feed(resp.text)
+            p.feed(pageData)
             data = p.tables
 
-            merged_data = ""
             i = 1
+            SubstitutionPlan = []
             for inner_list in data:
                 if inner_list[0][1] == "Datenschutz | Impressum":
                     break
-                merged_data += dates[i] + "\n\n"
-                for sublist in inner_list:
-                    merged_data += (
-                        " ".join(sublist) + "\n"
-                    )  # Füge die Elemente der Unterlisten durch Tabs getrennt zusammen
+                planOfDay = SubstitutionDay(dates[i], [])
+                if len(inner_list) <= 2 and len(inner_list[1]) == 1:
+                    noticeField = str(inner_list[1][0]).replace("\n", "")
+                    while "  " in noticeField:
+                        noticeField = noticeField.replace("  ", " ")
+                    substitution_data = planOfDay.Substitution(
+                        substitute="",
+                        teacher="",
+                        hours="",
+                        class_name="",
+                        subject="",
+                        subject_old="",
+                        room="",
+                        room_old="",
+                        notice=noticeField,
+                    )
+                    planOfDay.substitutions.append(substitution_data)
+                else:
+                    # Stunde Klasse Vertretung Lehrkraft Art Fach Fach_alt Raum Raum_alt Hinweis
+                    for sublist in inner_list[1:]:
+                        substitution_data = planOfDay.Substitution(
+                            substitute=sublist[3],
+                            teacher=sublist[4],
+                            hours=sublist[1],
+                            class_name=sublist[2],
+                            subject=sublist[6],
+                            subject_old=sublist[7],
+                            room=sublist[8],
+                            room_old=sublist[9],
+                            notice=sublist[10] if sublist[10] else None,
+                        )
+                        planOfDay.substitutions.append(substitution_data)
                 i += 1
+                SubstitutionPlan.append(planOfDay)
 
-            return merged_data, None
+            return SubstitutionPlan, None
         except Exception as e:
             return None, e
 
@@ -288,3 +318,53 @@ class HTMLTableParser(HTMLParser):
                 self.named_tables[self.name] = self._current_table
             self._current_table = []
             self.name = ""
+
+
+@define
+class SubstitutionDay:
+    """The substitution plan page in a data type.
+
+    Parameters
+    ----------
+    date : datetime.datetime
+        Date of the substitution plan.
+    substitutions : list[Substitution]
+        The individual substitutions.
+    info : str
+        ``info`` is the box with the title "Allgemein" that exists sometimes.
+    """
+
+    @define
+    class Substitution:
+        """The individual substitution data (table row).
+
+        Parameters
+        ----------
+        substitute : str
+            Often abbreviation of the substitute.
+        teacher : str
+            Often abbreviation of the teacher.
+        hours : str
+            When is it in school hours.
+        class_name : str
+            Name of the classes.
+        subject : str
+            The subject is rarely given.
+        room : str
+            Room of the substitution.
+        notice : str
+            More info about the substitution.
+        """
+
+        substitute: field(type=str)
+        teacher: field(type=str)
+        hours: field(type=str)
+        class_name: field(type=str)
+        subject: field(type=str)
+        subject_old: field(type=str)
+        room: field(type=str)
+        room_old: field(type=str)
+        notice: field(type=str)
+
+    date: field(type=datetime)
+    substitutions: field(factory=list, type=list[Substitution])
