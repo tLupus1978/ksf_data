@@ -211,8 +211,13 @@ class ksfData:
             i = 1
             SubstitutionPlan = []
             for inner_list in data:
-                if inner_list[0][1] == "Datenschutz | Impressum":
-                    break
+                if len(inner_list[0]) > 1:
+                    if inner_list[0][1] == "Datenschutz | Impressum":
+                        break
+                if str(inner_list[0]) == "['Abwesende Lehrkräfte']":
+                    continue
+                if str(inner_list[0]) == "['Abwesende Klassen']":
+                    continue
                 planOfDay = SubstitutionDay(dates[i], [])
                 if len(inner_list) <= 2 and len(inner_list[1]) == 1:
                     noticeField = str(inner_list[1][0]).replace("\n", "")
