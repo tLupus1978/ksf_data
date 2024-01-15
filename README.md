@@ -1,8 +1,7 @@
 # KSF data fetcher
 
 ## What it does
-A very simple Home Assistant custom component to query the hesse
-
+A very simple Home Assistant custom component to query the schulportal.hessen.de for Kopernikusschule Freigericht.
 
 ## What you'll need
 
@@ -16,20 +15,31 @@ It is recommended, to use [Home Assistans feature for storing secrets](https://w
 
 ```yaml
 sensor:
-    - platform: portainer
-      url: http://<hostname, fqdn or ip>:9000
-      name:  nas15
-      username: !secret port_user
-      password: !secret port_pass
-# To monitor multiple docker hosts, you can add more instances as you need:
-    - platform: portainer
-      url: http://<hostname, fqdn or ip>:8080 # If you chose to open port 9000 as port 8080, for example
-      name: pi10
-      username: !secret port_user # If you have multiple instances with different credentials, make sure to create individual secret variables!
-      password: !secret port_pass
+    - platform: ksf_data
+      name:  Usable name
+      username: <portal login name>
+      password: <portal password>
+    - platform: ksf_data
+      name:  Heinz Müller
+      username: heinz.mueller
+      password: 12012006
+    ...
 ```
 
-## Why and how it's made
+## Usage in Home Assistant UI
+You can use this to get the data in a good strucutre (markdown card!)
 
-This component was created by GPT-4 over 3 2-hour sessions.
+```yaml
+{% set data = state_attr('sensor.ksf_daten_heinz_mueller', 'SubstitutePlan')|from_json %}
+{% for i in range(0, data | count ) %}
+### {{ data[i]['date'] }}
+{% for s in range(0, data[i]['substitutions'] | count ) %}
+{% if data[i]['substitutions'][s]['hours'] == "" %}
+{{ data[i]['substitutions'][s]['notice'] }}
+{% else %}
+{{ data[i]['substitutions'][s]['hours'] }} {% if data[i]['substitutions'][s]['subject_old'] != "" %} - {{ data[i]['substitutions'][s]['subject_old'] }} {% endif %} - statt {{ data[i]['substitutions'][s]['teacher'] }} {% if data[i]['substitutions'][s]['substitute'] != "" %} jetzt {{ data[i]['substitutions'][s]['substitute'] }} {% endif %} {% if data[i]['substitutions'][s]['room'] != "" %} in {{ data[i]['substitutions'][s]['room'] }} {% endif %} {% if data[i]['substitutions'][s]['notice'] != None %} - {{ data[i]['substitutions'][s]['notice'] }} {% endif %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+```
 
