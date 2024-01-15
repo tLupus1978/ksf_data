@@ -257,10 +257,12 @@ class ksfData:
                 i += 1
                 SubstitutionPlan.append(planOfDay)
 
-            json_string = jsonpickle.encode(SubstitutionPlan)
+            json_string = jsonpickle.encode(SubstitutionPlan, unpicklable=False)
+            # json_string = jsonpickle.encode(SubstitutionPlan)
 
             return json_string, None
         except Exception as e:
+            _LOGGER.error("Failed to request substituteplan - exception occured!")
             return None, e
 
 
