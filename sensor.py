@@ -214,9 +214,11 @@ class ksfData:
                 if len(inner_list[0]) > 1:
                     if inner_list[0][1] == "Datenschutz | Impressum":
                         break
-                if str(inner_list[0]) == "['Abwesende Lehrkräfte']":
-                    continue
-                if str(inner_list[0]) == "['Abwesende Klassen']":
+                if (
+                    str(inner_list[0]) == "['Abwesende Klassen']"
+                    or str(inner_list[0]) == "['Betroffene Lehrer']"
+                    or str(inner_list[0]) == "['Abwesende Lehrkräfte']"
+                ):
                     continue
                 planOfDay = SubstitutionDay(dates[i], [])
                 if len(inner_list) <= 2 and len(inner_list[1]) == 1:
