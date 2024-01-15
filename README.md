@@ -9,7 +9,7 @@ A very simple Home Assistant custom component to query the schulportal.hessen.de
 **You'll need to restart Home Assistant now!**
 
 The plugin can not be configured via the UI, so you'll need to write some YAML.
-You'll need to add instances of the ```sensor``` integration with the platform ...
+You'll need to add instances of the ```sensor``` integration with the ksf_data ...
 
 It is recommended, to use [Home Assistans feature for storing secrets](https://www.home-assistant.io/docs/configuration/secrets/), in order to not directly include them in your configuration.yaml.
 
