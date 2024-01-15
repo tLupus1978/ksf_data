@@ -20,6 +20,8 @@ from homeassistant.util import Throttle
 
 from .const import DOMAIN
 
+import jsonpickle
+
 _LOGGER = logging.getLogger(__name__)
 
 MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=10)
@@ -255,7 +257,9 @@ class ksfData:
                 i += 1
                 SubstitutionPlan.append(planOfDay)
 
-            return SubstitutionPlan, None
+            json_string = jsonpickle.encode(SubstitutionPlan)
+
+            return json_string, None
         except Exception as e:
             return None, e
 

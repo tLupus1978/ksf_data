@@ -9,7 +9,8 @@
   "documentation": "",
   "integration_type": "hub",
   "requirements": [
-    "requests"
+    "requests",
+    "jsonpickle"
   ],
   "iot_class": "local_polling",
   "issue_tracker": ""
