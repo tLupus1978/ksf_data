@@ -43,4 +43,4 @@ You can use this to get the data in a good strucutre (markdown card!)
 {% endfor %}
 ```
 see e.g.: 
-![Lovelace UI of markdown card](ksf_data_lovelace.jpg)
+![Lovelace UI of markdown card](ksf_data_lovelace_example.jpg)
