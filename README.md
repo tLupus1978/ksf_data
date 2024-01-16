@@ -3,8 +3,6 @@
 ## What it does
 A very simple Home Assistant custom component to query the schulportal.hessen.de for Kopernikusschule Freigericht.
 
-## What you'll need
-
 ## Installation
 Check out your Home Assistant's custom_components folder, make a subdirectory called ksf_data and copy the files of this repository into this folder. 
 Alternatively, you can run git clone https://github.com/tLupus1978/ksf_data.git from within custom_components. You can ignore other files like README.md.
