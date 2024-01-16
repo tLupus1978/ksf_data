@@ -6,19 +6,20 @@ A very simple Home Assistant custom component to query the schulportal.hessen.de
 ## What you'll need
 
 ## Installation
+Check out your Home Assistant's custom_components folder, make a subdirectory called ksf_data and copy the files of this repository into this folder. 
+Alternatively, you can run git clone https://github.com/tLupus1978/ksf_data.git from within custom_components. You can ignore other files like README.md.
 **You'll need to restart Home Assistant now!**
 
 The plugin can not be configured via the UI, so you'll need to write some YAML.
-You'll need to add instances of the ```sensor``` integration with the ksf_data ...
-
+You'll need to add instances of the ```sensor``` integration with the ksf_data - see below
 It is recommended, to use [Home Assistans feature for storing secrets](https://www.home-assistant.io/docs/configuration/secrets/), in order to not directly include them in your configuration.yaml.
 
 ```yaml
 sensor:
     - platform: ksf_data
       name:  Usable name
-      username: <portal login name>
-      password: <portal password>
+      username: <schulportal login name>
+      password: <schulportal password>
     - platform: ksf_data
       name:  Heinz Müller
       username: heinz.mueller
