@@ -1,17 +1,17 @@
 {
   "domain": "ksf_data",
   "name": "KSF Daten",
-  "version": "2023.4.1",
+  "version": "2024.1.0",
   "codeowners": [
     "@tLupus1978"
   ],
   "dependencies": [],
-  "documentation": "",
+  "documentation": "A very simple Home Assistant custom component to query the KSF (Kopernikusschule Freigericht) substitution page",
   "integration_type": "hub",
   "requirements": [
     "requests",
     "jsonpickle"
   ],
   "iot_class": "local_polling",
-  "issue_tracker": ""
+  "issue_tracker": "https://github.com/tLupus1978/ksf_data/issues"
 }
