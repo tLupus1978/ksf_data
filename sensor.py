@@ -17,6 +17,7 @@ import requests
 
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import Throttle
+from homeassistant.helpers.event import track_time_interval
 
 from .const import DOMAIN
 
@@ -24,7 +25,8 @@ import jsonpickle
 
 _LOGGER = logging.getLogger(__name__)
 
-MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=10)
+MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=5)
+SCAN_INTERVAL = timedelta(minutes=10)
 
 DEFAULT_LOGIN_URL = "https://login.schulportal.hessen.de/?url=aHR0cHM6Ly9jb25uZWN0LnNjaHVscG9ydGFsLmhlc3Nlbi5kZS8=&skin=sp&i=6013"
 DEFAULT_LANDINGPAGE_URL = "https://connect.schulportal.hessen.de/"
@@ -45,6 +47,14 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         # _LOGGER.debug(f"Loading KSF data from {url}")
         ksf = ksfData(username, password)
         ksf.update()
+
+        def refresh(event_time):
+            """Refresh"""
+            _LOGGER.debug("Updating...")
+            hass.data[DOMAIN].update()
+
+        track_time_interval(hass, refresh, SCAN_INTERVAL)
+
     except Exception as e:
         _LOGGER.error(f"Failed to connect to KSF: {e}")
         return False
@@ -103,6 +113,7 @@ class ksfSensor(Entity):
             "SubstitutePlan": str(self._ksf.substituteplan),
         }
 
+    @Throttle(MIN_TIME_BETWEEN_UPDATES)
     def update(self):
         self._ksf.update()
         _LOGGER.debug(f"Updating KSF data for {self._ksf.username}")
@@ -129,7 +140,6 @@ class ksfData:
     def state(self):
         return self._state
 
-    @Throttle(MIN_TIME_BETWEEN_UPDATES)
     def update(self):
         ex = None
         if not self._substituteplan:
