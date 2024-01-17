@@ -6,7 +6,7 @@
     "@tLupus1978"
   ],
   "dependencies": [],
-  "documentation": "A very simple Home Assistant custom component to query the KSF (Kopernikusschule Freigericht) substitution page",
+  "documentation": "https://github.com/tLupus1978/ksf_data",
   "integration_type": "hub",
   "requirements": [
     "requests",
