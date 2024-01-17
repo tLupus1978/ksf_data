@@ -1,7 +1,12 @@
 # KSF data fetcher
 
 ## What it does
-A very simple Home Assistant custom component to query the schulportal.hessen.de for Kopernikusschule Freigericht.
+A very simple Home Assistant custom component to query the schulportal.hessen.de for Kopernikusschule Freigericht (KSF).
+As the schulportal page changes sometimes, it could be that there are changes required for fetching the data from the page.
+
+Sadly, the LANIS API (https://github.com/kurwjan/LanisAPI) is not working for the KSF, therefore this component is based on an own implementation.
+
+See sensor.py - the component fetches the data every 10 minutes from the schulportal page.
 
 ## Installation
 Check out your Home Assistant's custom_components folder, make a subdirectory called ksf_data and copy the files of this repository into this folder. 
