@@ -1,18 +1,23 @@
 # KSF data fetcher
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
 
-## What it does
-A very simple Home Assistant custom component to query the schulportal.hessen.de for Kopernikusschule Freigericht (KSF).
-As the schulportal page changes sometimes, it could be that there are changes required for fetching the data from the page.
+This component adds support for [KSF substitutions] to Home Assistant:
 
-Sadly, the LANIS API (https://github.com/kurwjan/LanisAPI) is not working for the KSF, therefore this component is based on an own implementation.
-
-See sensor.py - the component fetches the data every 10 minutes from the schulportal page.
+If you like this component, please give it a star on [github](https://github.com/tLupus1978/ksf_data).
 
 ## Installation
-Check out your Home Assistant's custom_components folder, make a subdirectory called ksf_data and copy the files of this repository into this folder. 
-Alternatively, you can run git clone https://github.com/tLupus1978/ksf_data.git from within custom_components. You can ignore other files like README.md.
-**You'll need to restart Home Assistant now!**
 
+1. Ensure that [HACS](https://hacs.xyz) is installed.
+2. Install **ksf_data** integration via HACS.
+3. Add configuration section in home assistant configuration
+4. You'll need to restart Home Assistant now!
+
+In case you would like to install manually:
+
+1. Copy the folder `custom_components/ksf_data` to `custom_components` in your Home Assistant `config` folder.
+2. Add configuration section in home assistant configuration
+
+## Configuration
 The plugin can not be configured via the UI, so you'll need to write some YAML.
 You'll need to add instances of the ```sensor``` integration with the ksf_data - see below
 It is recommended, to use [Home Assistans feature for storing secrets](https://www.home-assistant.io/docs/configuration/secrets/), in order to not directly include them in your configuration.yaml.
@@ -29,6 +34,14 @@ sensor:
       password: 12012006
     ...
 ```
+
+## What it does
+A very simple Home Assistant custom component to query the schulportal.hessen.de for Kopernikusschule Freigericht (KSF).
+As the schulportal page changes sometimes, it could be that there are changes required for fetching the data from the page.
+
+Sadly, the LANIS API (https://github.com/kurwjan/LanisAPI) is not working for the KSF, therefore this component is based on an own implementation.
+
+See sensor.py - the component fetches the data every 10 minutes from the schulportal page.
 
 ## Usage in Home Assistant UI
 You can use this to get the data in a good strucutre (markdown card!)
