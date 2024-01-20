@@ -28,10 +28,14 @@ sensor:
       name:  Usable name
       username: <schulportal login name>
       password: <schulportal password>
+      scan_interval:
+        minutes: 5
     - platform: ksf_data
       name:  Heinz Müller
       username: heinz.mueller
       password: 12012006
+      scan_interval:
+        minutes: 5
     ...
 ```
 
