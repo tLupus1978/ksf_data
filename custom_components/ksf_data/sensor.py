@@ -32,6 +32,11 @@ DEFAULT_LANDINGPAGE_URL = "https://connect.schulportal.hessen.de/"
 DEFAULT_SUBSTITUTE_URL = "https://start.schulportal.hessen.de/vertretungsplan.php"
 
 
+@property
+def should_poll(self):
+    return True
+
+
 def setup_platform(hass, config, add_entities, discovery_info=None):
     # url = config.get("url")
     username = config.get("username")
@@ -52,7 +57,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         return False
 
     ksf_entity = ksfSensor(ksf, name, username)
-    add_entities([ksf_entity], True)
+    add_entities([ksf_entity], update_before_add=True)
 
 
 class ksfSensor(Entity):
@@ -202,13 +207,17 @@ class ksfData:
             dates = []
             VertretungenDates = d(".panel-body")
             for my_div in VertretungenDates.items():
-                dates.append(my_div("h3").text())
+                foundData = my_div("h3").not_(".hidden-xs").text()
+                if foundData.startswith("Vertretungen am"):
+                    dates.append(foundData)
+                else:
+                    continue
 
             p = HTMLTableParser()
             p.feed(pageData)
-            data = p.tables
+            data = p.named_tables.values()
 
-            i = 1
+            i = 0
             SubstitutionPlan = []
             for inner_list in data:
                 if len(inner_list[0]) > 1:
@@ -218,6 +227,7 @@ class ksfData:
                     str(inner_list[0]) == "['Abwesende Klassen']"
                     or str(inner_list[0]) == "['Betroffene Lehrer']"
                     or str(inner_list[0]) == "['Abwesende Lehrkräfte']"
+                    or str(inner_list[0]) == "['Allgemein']"
                 ):
                     continue
                 planOfDay = SubstitutionDay(dates[i], [])
