@@ -18,6 +18,7 @@ import requests
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import Throttle
 from homeassistant.helpers.event import track_time_interval
+from homeassistant.helpers.event import async_track_time_interval
 
 from .const import DOMAIN
 
@@ -32,11 +33,6 @@ DEFAULT_LANDINGPAGE_URL = "https://connect.schulportal.hessen.de/"
 DEFAULT_SUBSTITUTE_URL = "https://start.schulportal.hessen.de/vertretungsplan.php"
 
 
-@property
-def should_poll(self):
-    return True
-
-
 def setup_platform(hass, config, add_entities, discovery_info=None):
     # url = config.get("url")
     username = config.get("username")
@@ -47,20 +43,27 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     #    _LOGGER.error("URL, username, name or password not provided.")
     #    return False
 
-    try:
-        # _LOGGER.debug(f"Loading KSF data from {url}")
-        ksf = ksfData(username, password)
-        ksf.update()
-
-    except Exception as e:
-        _LOGGER.error(f"Failed to connect to KSF: {e}")
-        return False
-
+    #   try:
+    #       # _LOGGER.debug(f"Loading KSF data from {url}")
+    #       ksf = ksfData(hass, username, password)
+    #       ksf.update()
+    #
+    #   except Exception as e:
+    #       _LOGGER.error(f"Failed to connect to KSF: {e}")
+    #       return False
+    #
+    ksf = ksfData(hass, username, password)
     ksf_entity = ksfSensor(ksf, name, username)
     add_entities([ksf_entity], update_before_add=True)
 
 
 class ksfSensor(Entity):
+    """Base representation of a Hello World Sensor."""
+
+    MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=1)
+
+    should_poll = True
+
     def __init__(self, ksf, name, username):
         self._ksf = ksf
         self._state = None
@@ -116,7 +119,7 @@ class ksfSensor(Entity):
 
 
 class ksfData:
-    def __init__(self, username, password):
+    def __init__(self, hass, username, password):
         self._username = username
         self._password = password
         self._substituteplan = None
