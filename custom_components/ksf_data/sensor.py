@@ -39,19 +39,6 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     password = config.get("password")
     name = config.get("name")
 
-    # if not url or not username or not password or not name:
-    #    _LOGGER.error("URL, username, name or password not provided.")
-    #    return False
-
-    #   try:
-    #       # _LOGGER.debug(f"Loading KSF data from {url}")
-    #       ksf = ksfData(hass, username, password)
-    #       ksf.update()
-    #
-    #   except Exception as e:
-    #       _LOGGER.error(f"Failed to connect to KSF: {e}")
-    #       return False
-    #
     ksf = ksfData(hass, username, password)
     ksf_entity = ksfSensor(ksf, name, username)
     add_entities([ksf_entity], update_before_add=True)
@@ -100,7 +87,6 @@ class ksfSensor(Entity):
         return {
             "Name": self._name,
             "FriendlyName": self._username,
-            # "Version": self._portainer.version,
             "SubstitutePlan": str(self._ksf.substituteplan),
         }
 
@@ -150,7 +136,6 @@ class ksfData:
     def _get_substituteplan(self):
         """Vertretungsplan getter using pyscript."""
         try:
-            # log.info(f"Vertretungsplan: got user {user} password {password}")
             login_url = DEFAULT_LOGIN_URL
             landing_url = DEFAULT_LANDINGPAGE_URL
             substitute_url = DEFAULT_SUBSTITUTE_URL
@@ -163,8 +148,8 @@ class ksfData:
                 "url": "aHR0cHM6Ly9jb25uZWN0LnNjaHVscG9ydGFsLmhlc3Nlbi5kZS8=",
             }
             headers = {"User-Agent": "Mozilla/5.0"}
-
-            # log.info(f"Start login")
+            
+            #Start login
             session = requests.Session()
             resp = session.get(login_url, headers=headers, timeout=5)
             # did this for first to get the cookies from the page, stored them with next line:
