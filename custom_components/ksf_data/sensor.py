@@ -26,32 +26,49 @@ import jsonpickle
 
 _LOGGER = logging.getLogger(__name__)
 
-MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=1)
+MIN_TIME_BETWEEN_UPDATES = timedelta(seconds=45)
 
 DEFAULT_LOGIN_URL = "https://login.schulportal.hessen.de/?url=aHR0cHM6Ly9jb25uZWN0LnNjaHVscG9ydGFsLmhlc3Nlbi5kZS8=&skin=sp&i=6013"
 DEFAULT_LANDINGPAGE_URL = "https://connect.schulportal.hessen.de/"
 DEFAULT_SUBSTITUTE_URL = "https://start.schulportal.hessen.de/vertretungsplan.php"
 
+# Define the update interval (every 1 hour)
+SCAN_INTERVAL = timedelta(hour=1)
 
+
+# setup of the component
 def setup_platform(hass, config, add_entities, discovery_info=None):
     # url = config.get("url")
     username = config.get("username")
     password = config.get("password")
     name = config.get("name")
 
-    ksf = ksfData(hass, username, password)
-    ksf_entity = ksfSensor(ksf, name, username)
-    add_entities([ksf_entity], update_before_add=True)
+    # if not url or not username or not password or not name:
+    #    _LOGGER.error("URL, username, name or password not provided.")
+    #    return False
+
+    #   try:
+    #       # _LOGGER.debug(f"Loading KSF data from {url}")
+    #       ksf = ksfData(hass, username, password)
+    #       ksf.update()
+    #
+    #   except Exception as e:
+    #       _LOGGER.error(f"Failed to connect to KSF: {e}")
+    #       return False
+    #
+    add_entities(
+        [ksfSensor(name, username, password)],
+        update_before_add=True,
+    )
 
 
 class ksfSensor(Entity):
     """Base representation of a Hello World Sensor."""
 
-    MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=1)
-
     should_poll = True
 
-    def __init__(self, ksf, name, username):
+    def __init__(self, name, username, password):
+        ksf = ksfData(username, password)
         self._ksf = ksf
         self._state = None
         self._attributes = {}
@@ -71,6 +88,10 @@ class ksfSensor(Entity):
         return self._username
 
     @property
+    def password(self):
+        return self._password
+
+    @property
     def state(self):
         return self._state
 
@@ -87,6 +108,7 @@ class ksfSensor(Entity):
         return {
             "Name": self._name,
             "FriendlyName": self._username,
+            # "Version": self._portainer.version,
             "SubstitutePlan": str(self._ksf.substituteplan),
         }
 
@@ -105,7 +127,7 @@ class ksfSensor(Entity):
 
 
 class ksfData:
-    def __init__(self, hass, username, password):
+    def __init__(self, username, password):
         self._username = username
         self._password = password
         self._substituteplan = None
@@ -136,6 +158,7 @@ class ksfData:
     def _get_substituteplan(self):
         """Vertretungsplan getter using pyscript."""
         try:
+            # log.info(f"Vertretungsplan: got user {user} password {password}")
             login_url = DEFAULT_LOGIN_URL
             landing_url = DEFAULT_LANDINGPAGE_URL
             substitute_url = DEFAULT_SUBSTITUTE_URL
@@ -148,8 +171,8 @@ class ksfData:
                 "url": "aHR0cHM6Ly9jb25uZWN0LnNjaHVscG9ydGFsLmhlc3Nlbi5kZS8=",
             }
             headers = {"User-Agent": "Mozilla/5.0"}
-            
-            #Start login
+
+            # log.info(f"Start login")
             session = requests.Session()
             resp = session.get(login_url, headers=headers, timeout=5)
             # did this for first to get the cookies from the page, stored them with next line:
