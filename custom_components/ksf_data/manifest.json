@@ -1,7 +1,7 @@
 {
   "domain": "ksf_data",
   "name": "KSF Daten",
-  "version": "2024.9.2",
+  "version": "2024.9.4",
   "codeowners": [
     "@tLupus1978"
   ],
