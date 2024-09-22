@@ -33,7 +33,7 @@ DEFAULT_LANDINGPAGE_URL = "https://connect.schulportal.hessen.de/"
 DEFAULT_SUBSTITUTE_URL = "https://start.schulportal.hessen.de/vertretungsplan.php"
 
 # Define the update interval (every 1 hour)
-SCAN_INTERVAL = timedelta(hour=1)
+SCAN_INTERVAL = timedelta(hours=1)
 
 
 # setup of the component
